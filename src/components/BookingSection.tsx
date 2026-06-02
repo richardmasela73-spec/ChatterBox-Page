@@ -12,6 +12,8 @@ export default function BookingSection() {
     courseType: 'Kids Conversation Class',
     preferredDate: '',
     preferredTime: '',
+    preferredDate2: '',
+    preferredTime2: '',
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -71,14 +73,14 @@ export default function BookingSection() {
     if (data.spreadsheetId) {
       localStorage.setItem('adminSpreadsheetId', data.spreadsheetId);
       
-      const headRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${data.spreadsheetId}/values/Bookings!A1:G1:append?valueInputOption=USER_ENTERED`, {
+      const headRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${data.spreadsheetId}/values/Bookings!A1:H1:append?valueInputOption=USER_ENTERED`, {
         method: 'POST',
         headers: { 
           'Authorization': `Bearer ${accessToken}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          values: [['Date Submitted', 'Name', 'Email', 'Phone', 'Package', 'Course Type', 'Preferred Schedule']]
+          values: [['Date Submitted', 'Name', 'Email', 'Phone', 'Package', 'Course Type', 'Preferred Schedule 1', 'Preferred Schedule 2']]
         })
       });
       
@@ -107,8 +109,10 @@ export default function BookingSection() {
         }
       }
 
+      const isTrial = formData.package === 'Trial Class 30 minutes';
+
       const spreadsheetId = await createOrGetSpreadsheetId(accessToken);
-      const sheetRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Bookings!A:G:append?valueInputOption=USER_ENTERED`, {
+      const sheetRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Bookings!A:H:append?valueInputOption=USER_ENTERED`, {
         method: 'POST',
         headers: { 
           'Authorization': `Bearer ${accessToken}`,
@@ -122,7 +126,8 @@ export default function BookingSection() {
             formData.phone,
             formData.package,
             formData.courseType,
-            `${formData.preferredDate} ${formData.preferredTime}`
+            `${formData.preferredDate} ${formData.preferredTime}`,
+            isTrial ? '-' : `${formData.preferredDate2} ${formData.preferredTime2}`
           ]]
         })
       });
@@ -131,31 +136,45 @@ export default function BookingSection() {
         throw new Error(`Sheet append failed: ${await sheetRes.text()}`);
       }
 
-      const eventStartTime = new Date(`${formData.preferredDate}T${formData.preferredTime}:00`);
-      const eventEndTime = new Date(eventStartTime.getTime() + 60 * 60 * 1000);
-      
-      const calRes = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
-        method: 'POST',
-        headers: { 
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          summary: `English Class: ${formData.courseType}`,
-          description: `Student: ${formData.name}\nPackage: ${formData.package}\nPhone: ${formData.phone}`,
-          start: {
-            dateTime: eventStartTime.toISOString(),
-            timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      const createCalEvent = async (dateStr: string, timeStr: string, index: number) => {
+        if (!dateStr || !timeStr) return;
+        const eventStartTime = new Date(`${dateStr}T${timeStr}:00`);
+        const durationHours = isTrial ? 0.5 : 1;
+        const eventEndTime = new Date(eventStartTime.getTime() + durationHours * 60 * 60 * 1000);
+        
+        const calRes = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
+          method: 'POST',
+          headers: { 
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
           },
-          end: {
-            dateTime: eventEndTime.toISOString(),
-            timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-          },
-        })
-      });
+          body: JSON.stringify({
+            summary: `English Class: ${formData.courseType}`,
+            description: `Student: ${formData.name}\nPackage: ${formData.package}\nPhone: ${formData.phone}\nSchedule: ${index}`,
+            start: {
+              dateTime: eventStartTime.toISOString(),
+              timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            },
+            end: {
+              dateTime: eventEndTime.toISOString(),
+              timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            },
+          })
+        });
 
-      if (!calRes.ok) {
-        throw new Error(`Calendar event creation failed: ${await calRes.text()}`);
+        if (!calRes.ok) {
+          throw new Error(`Calendar event creation failed: ${await calRes.text()}`);
+        }
+      };
+
+      await createCalEvent(formData.preferredDate, formData.preferredTime, 1);
+      if (!isTrial) {
+        await createCalEvent(formData.preferredDate2, formData.preferredTime2, 2);
+      }
+
+      let scheduleText = `*Preferred Date 1*: ${formData.preferredDate}\n*Preferred Time 1*: ${formData.preferredTime}`;
+      if (!isTrial) {
+        scheduleText += `\n*Preferred Date 2*: ${formData.preferredDate2}\n*Preferred Time 2*: ${formData.preferredTime2}`;
       }
 
       const message = `Hello Box Obrolan! I would like to book a class.
@@ -165,8 +184,7 @@ export default function BookingSection() {
 *Phone*: ${formData.phone}
 *Package*: ${formData.package}
 *Course Type*: ${formData.courseType}
-*Preferred Date*: ${formData.preferredDate}
-*Preferred Time*: ${formData.preferredTime}
+${scheduleText}
 
 Please let me know the next steps!`;
 
@@ -323,7 +341,7 @@ Please let me know the next steps!`;
 
                 <div className="grid md:grid-cols-2 gap-6">
                    <div className="space-y-2">
-                    <label className="text-sm font-bold text-slate-700">Preferred Date</label>
+                    <label className="text-sm font-bold text-slate-700">{formData.package === 'Trial Class 30 minutes' ? 'Preferred Date' : 'Preferred Date 1'}</label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
                         <Calendar size={18} />
@@ -341,12 +359,12 @@ Please let me know the next steps!`;
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-sm font-bold text-slate-700">Preferred Time</label>
+                    <label className="text-sm font-bold text-slate-700">{formData.package === 'Trial Class 30 minutes' ? 'Preferred Time' : 'Preferred Time 1'}</label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
                         <Clock size={18} />
                       </div>
-                      <input 
+                       <input 
                         type="time" 
                         name="preferredTime"
                         required
@@ -357,6 +375,45 @@ Please let me know the next steps!`;
                     </div>
                   </div>
                 </div>
+
+                {formData.package !== 'Trial Class 30 minutes' && (
+                  <div className="grid md:grid-cols-2 gap-6">
+                     <div className="space-y-2">
+                      <label className="text-sm font-bold text-slate-700">Preferred Date 2</label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                          <Calendar size={18} />
+                        </div>
+                        <input 
+                          type="date" 
+                          name="preferredDate2"
+                          required={formData.package !== 'Trial Class 30 minutes'}
+                          value={formData.preferredDate2}
+                          onChange={handleInputChange}
+                          min={new Date().toISOString().split('T')[0]}
+                          className="w-full pl-11 pr-4 py-3 bg-brand-light/50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-orange focus:border-transparent transition-all"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-slate-700">Preferred Time 2</label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                          <Clock size={18} />
+                        </div>
+                         <input 
+                          type="time" 
+                          name="preferredTime2"
+                          required={formData.package !== 'Trial Class 30 minutes'}
+                          value={formData.preferredTime2}
+                          onChange={handleInputChange}
+                          className="w-full pl-11 pr-4 py-3 bg-brand-light/50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-orange focus:border-transparent transition-all"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 <button 
                   type="submit"

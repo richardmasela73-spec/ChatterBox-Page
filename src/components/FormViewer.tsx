@@ -149,7 +149,7 @@ export default function FormViewer({ accessToken }: FormViewerProps) {
 
                     <div className="space-y-4">
                       {Object.keys(questions).length > 0 ? (
-                         Object.entries(response.answers || {}).map(([questionId, answerObj]) => {
+                         Object.entries(response.answers || {}).map(([questionId, answerObj]: [string, any]) => {
                            const questionTitle = questions[questionId] || 'Unknown Question';
                            const values = answerObj.textAnswers?.answers?.map(a => a.value).join(', ') || '-';
                            return (

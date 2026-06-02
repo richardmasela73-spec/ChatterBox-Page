@@ -1,11 +1,8 @@
-import { useState } from 'react';
 import { motion } from 'motion/react';
 import { Play, Sparkles } from 'lucide-react';
-import ReportModal from './ReportModal';
+import MiniQuiz from './MiniQuiz';
 
 export default function Hero() {
-  const [isReportOpen, setIsReportOpen] = useState(false);
-
   return (
     <section className="pt-32 pb-16 md:pt-40 md:pb-24 overflow-hidden relative">
       {/* Background decorations */}
@@ -64,45 +61,8 @@ export default function Hero() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="lg:col-span-5 relative"
           >
-            {/* Main illustration/image area */}
-            <div className="relative z-10 w-full aspect-square bg-white rounded-[40px] shadow-2xl p-8 border border-slate-100">
-              <div className="flex justify-between items-start mb-8">
-                <div>
-                  <h3 className="text-2xl font-bold text-brand-blue">Daily Goal</h3>
-                  <p className="text-slate-400 font-medium mt-1">Almost there, Sarah!</p>
-                </div>
-                <div className="w-14 h-14 bg-brand-yellow rounded-2xl flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-brand-yellow/30">
-                  85%
-                </div>
-              </div>
-              
-              <div className="space-y-6">
-                <div className="bg-slate-50 p-5 rounded-2xl border-l-4 border-brand-orange">
-                  <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Current Course</p>
-                  <p className="font-bold text-lg text-brand-blue">English for Kids</p>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="p-4 bg-brand-orange rounded-2xl text-white">
-                    <p className="text-[10px] font-bold opacity-70 uppercase tracking-widest">Time Spent</p>
-                    <p className="text-3xl font-black mt-1">42m</p>
-                  </div>
-                  <div className="p-4 border-2 border-slate-100 rounded-2xl">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Words Learned</p>
-                    <p className="text-3xl font-black text-brand-blue mt-1">128</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between pt-4 px-1">
-                  <div className="flex space-x-2">
-                    <div className="w-2.5 h-2.5 rounded-full bg-brand-orange"></div>
-                    <div className="w-2.5 h-2.5 rounded-full bg-brand-orange"></div>
-                    <div className="w-2.5 h-2.5 rounded-full bg-slate-200"></div>
-                  </div>
-                  <span onClick={() => setIsReportOpen(true)} className="text-xs font-bold text-brand-orange cursor-pointer hover:underline uppercase tracking-wide">View Report &rarr;</span>
-                </div>
-              </div>
-            </div>
+            {/* Interactive Mini Quiz Area */}
+            <MiniQuiz />
 
             {/* Background decorative card */}
             <div className="absolute -top-6 -right-6 w-full h-full bg-brand-orange/5 rounded-[40px] -z-10 transform rotate-3 border border-brand-orange/10"></div>
@@ -110,7 +70,6 @@ export default function Hero() {
 
         </div>
       </div>
-      <ReportModal isOpen={isReportOpen} onClose={() => setIsReportOpen(false)} />
     </section>
   );
 }

@@ -58,7 +58,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-brand-light flex flex-col overflow-x-hidden">
-      <Navbar user={user} onLogin={handleLogin} onLogout={handleLogout} />
+      <Navbar />
       
       <main className="flex-grow">
         <Hero />

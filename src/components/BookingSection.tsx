@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Calendar, Phone, Mail, User, Clock, ArrowRight, Loader2 } from 'lucide-react';
 import { getAccessToken, googleSignIn, initAuth } from '../lib/auth';

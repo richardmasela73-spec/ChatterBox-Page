@@ -1,0 +1,8 @@
+{
+  "name": "ChatterBox",
+  "description": "Learn English with ChatterBox. Interactive lessons, certified teachers.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

@@ -8,7 +8,7 @@ export default function BookingSection() {
     email: '',
     phone: '',
     package: '1 Month Package',
-    courseType: 'Adults',
+    courseType: 'Kids Conversation Class',
     preferredDate: '',
     preferredTime: '',
   });
@@ -183,8 +183,10 @@ Please let me know the next steps!`;
                       onChange={handleInputChange}
                       className="w-full px-4 py-3 bg-brand-light/50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-orange focus:border-transparent transition-all appearance-none"
                     >
-                      <option value="Adults">Adults</option>
-                      <option value="Kids">Kids</option>
+                      <option value="Kids Conversation Class">Kids Conversation Class</option>
+                      <option value="Adults Conversation Class">Adults Conversation Class</option>
+                      <option value="General English">General English</option>
+                      <option value="Test Preparation Class">Test Preparation Class</option>
                     </select>
                   </div>
                 </div>

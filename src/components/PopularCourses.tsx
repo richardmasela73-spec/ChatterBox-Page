@@ -1,36 +1,54 @@
 import { motion } from 'motion/react';
 import { ArrowRight, Star } from 'lucide-react';
+import kidsClassImg from '../assets/images/kids_class_1780384031494.png';
+import adultsClassImg from '../assets/images/adults_class_1780384049622.png';
+import generalEnglishImg from '../assets/images/general_english_1780384065810.png';
+import testPrepImg from '../assets/images/test_prep_1780384079882.png';
 
 const courses = [
   {
     id: 1,
-    title: 'English Conversation for Kids',
+    title: 'Kids Conversation Class',
     level: 'Kids',
+    description: 'Fun and interactive sessions designed to build confidence in young learners through games and activities.',
     rating: 4.9,
     reviews: 1450,
     lessons: 32,
-    image: 'https://i.ibb.co.com/B22YYsQN/Gemini-Generated-Image-aw044raw044raw04.png',
+    image: kidsClassImg,
     color: 'bg-green-100 text-green-700',
   },
   {
     id: 2,
-    title: 'Business English Elite',
-    level: 'Advanced',
+    title: 'Adults Conversation Class',
+    level: 'Adults',
+    description: 'Practical speaking practice focusing on everyday situations, fluency, and overcoming the fear of talking.',
     rating: 4.9,
     reviews: 890,
     lessons: 36,
-    image: 'https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&q=80&w=400',
+    image: adultsClassImg,
     color: 'bg-brand-orange/10 text-brand-orange',
   },
   {
     id: 3,
-    title: 'IELTS Preparation',
-    level: 'Intermediate',
+    title: 'General English',
+    level: 'All Levels',
+    description: 'Comprehensive course covering grammar, vocabulary, reading, writing, speaking, and listening skills.',
+    rating: 4.8,
+    reviews: 1240,
+    lessons: 40,
+    image: generalEnglishImg,
+    color: 'bg-brand-blue/10 text-brand-blue',
+  },
+  {
+    id: 4,
+    title: 'Test Preparation Class',
+    level: 'Advanced',
+    description: 'Targeted strategies and intensive practice for students preparing for IELTS, TOEFL, and other proficiency tests.',
     rating: 4.7,
     reviews: 1560,
     lessons: 48,
-    image: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&q=80&w=400',
-    color: 'bg-brand-blue/10 text-brand-blue',
+    image: testPrepImg,
+    color: 'bg-purple-100 text-purple-700',
   },
 ];
 
@@ -52,15 +70,16 @@ export default function PopularCourses() {
           </button>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {courses.map((course, index) => (
-            <motion.div
+            <motion.a
+              href="#booking"
               key={course.id}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="bg-white rounded-[40px] p-6 group cursor-pointer border border-slate-100 shadow-xl shadow-slate-200/50 hover:-translate-y-2 transition-all duration-300"
+              className="bg-white rounded-[40px] p-6 group cursor-pointer border border-slate-100 shadow-xl shadow-slate-200/50 hover:-translate-y-2 transition-all duration-300 block"
             >
               <div className="relative rounded-[24px] overflow-hidden mb-6 aspect-[4/3] shadow-md">
                 <img 
@@ -75,7 +94,7 @@ export default function PopularCourses() {
                 </div>
               </div>
               
-              <div className="px-2">
+              <div className="px-2 flex flex-col h-full">
                 <div className="flex items-center gap-2 mb-3">
                   <div className="flex items-center text-brand-yellow">
                     <Star size={16} fill="currentColor" />
@@ -88,14 +107,18 @@ export default function PopularCourses() {
                   {course.title}
                 </h3>
                 
-                <div className="flex items-center justify-between mt-6 pt-6 border-t border-slate-100">
+                <p className="text-slate-500 text-sm mb-4 line-clamp-3">
+                  {course.description}
+                </p>
+                
+                <div className="flex items-center justify-between mt-auto pt-6 border-t border-slate-100">
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{course.lessons} Lessons</span>
                   <div className="w-12 h-12 rounded-2xl bg-brand-orange/10 flex items-center justify-center text-brand-orange group-hover:bg-brand-orange group-hover:text-white transition-colors shadow-sm">
                     <ArrowRight size={20} />
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </motion.a>
           ))}
         </div>
         

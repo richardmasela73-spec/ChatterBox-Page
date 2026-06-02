@@ -52,7 +52,7 @@ export default function Hero() {
                   ))}
                 </div>
                 <div className="text-sm font-bold text-brand-blue">
-                  Join 45k+ Learners
+                  Join 3000+ Learners
                 </div>
               </div>
             </div>

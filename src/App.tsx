@@ -80,6 +80,7 @@ export default function App() {
 
         <Stats />
         <Features />
+        <About />
         
         {/* Simple CTA Section */}
         <section className="py-24 relative overflow-hidden">
@@ -106,7 +107,6 @@ export default function App() {
         <BookingSection />
         <Tutors />
         <Testimonials />
-        <About />
         <Contact />
       </main>
 

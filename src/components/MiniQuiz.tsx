@@ -3,21 +3,26 @@ import { motion, AnimatePresence } from 'motion/react';
 import { ArrowRight, CheckCircle2, XCircle, RotateCcw } from 'lucide-react';
 
 const QUIZ_QUESTIONS = [
-  {
-    question: "I ___ from Indonesia.",
-    options: ["am", "is", "are", "be"],
-    correct: 0
-  },
-  {
-    question: "She ___ to school every day.",
-    options: ["go", "goes", "is", "going"],
-    correct: 1
-  },
-  {
-    question: "They ___ playing football right now.",
-    options: ["am", "is", "are", "be"],
-    correct: 2
-  }
+  { question: "I ___ from Indonesia.", options: ["am", "is", "are", "be"], correct: 0 },
+  { question: "The opposite of 'Happy' is ___.", options: ["Sad", "Angry", "Excited", "Tired"], correct: 0 },
+  { question: "'The cat slept on the mat.' Where did the cat sleep?", options: ["On the chair", "Under the table", "On the mat", "Outside"], correct: 2 },
+  { question: "She ___ to school every day.", options: ["go", "goes", "is", "going"], correct: 1 },
+  { question: "A person who teaches is a ___.", options: ["Doctor", "Teacher", "Engineer", "Pilot"], correct: 1 },
+  { question: "They ___ playing football right now.", options: ["am", "is", "are", "be"], correct: 2 },
+  { question: "'John likes apples but hates bananas.' What fruit does John dislike?", options: ["Apples", "Oranges", "Bananas", "Grapes"], correct: 2 },
+  { question: "___ you like to drink some coffee?", options: ["Would", "Do", "Are", "Have"], correct: 0 },
+  { question: "The synonym of 'Big' is ___.", options: ["Small", "Huge", "Tiny", "Little"], correct: 1 },
+  { question: "I have been living here ___ 2010.", options: ["for", "since", "in", "on"], correct: 1 },
+  { question: "If it rains, I ___ at home.", options: ["stay", "will stay", "stayed", "staying"], correct: 1 },
+  { question: "To 'purchase' means to ___.", options: ["Sell", "Buy", "Give", "Take"], correct: 1 },
+  { question: "He is the ___ boy in the class.", options: ["tall", "taller", "tallest", "more tall"], correct: 2 },
+  { question: "We ___ to the cinema last night.", options: ["go", "goes", "went", "gone"], correct: 2 },
+  { question: "What is the plural form of 'child'?", options: ["childs", "children", "childrens", "childes"], correct: 1 },
+  { question: "I don't have ___ money.", options: ["some", "any", "many", "A few"], correct: 1 },
+  { question: "'The train arrived at 8:00 AM. It was 15 minutes late.' What time was the train scheduled to arrive?", options: ["8:15 AM", "7:45 AM", "8:00 AM", "7:30 AM"], correct: 1 },
+  { question: "A place where you borrow books is a ___.", options: ["Bank", "Hospital", "Library", "School"], correct: 2 },
+  { question: "She speaks English very ___.", options: ["good", "well", "bad", "nice"], correct: 1 },
+  { question: "My brother ___ his homework yet.", options: ["hasn't finished", "haven't finished", "didn't finished", "don't finish"], correct: 0 },
 ];
 
 export default function MiniQuiz() {
@@ -61,7 +66,7 @@ export default function MiniQuiz() {
       <div className="flex justify-between items-start mb-6">
         <div>
           <h3 className="text-2xl font-bold text-brand-blue">Test Your Level</h3>
-          <p className="text-slate-400 font-medium mt-1">Quick 3-question quiz</p>
+          <p className="text-slate-400 font-medium mt-1">Comprehensive 20-question quiz</p>
         </div>
         {!showResult && (
           <div className="w-12 h-12 bg-brand-orange/10 rounded-2xl flex items-center justify-center text-brand-orange font-bold text-lg">
@@ -134,10 +139,10 @@ export default function MiniQuiz() {
                 </span>
               </div>
               <h4 className="text-2xl font-bold text-brand-blue">
-                {score === 3 ? "Excellent!" : score === 2 ? "Great job!" : "Keep practicing!"}
+                {score >= 17 ? "Excellent!" : score >= 12 ? "Great job!" : "Keep practicing!"}
               </h4>
               <p className="text-slate-500">
-                Based on your short test, we recommend checking out our {score === 3 ? "Advanced" : "Beginner to Intermediate"} courses.
+                Based on your short test, we recommend checking out our {score >= 17 ? "Advanced" : score >= 12 ? "Intermediate" : "Beginner"} courses.
               </p>
               <button
                 onClick={restartQuiz}

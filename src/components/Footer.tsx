@@ -1,6 +1,19 @@
+import { useState } from 'react';
 import { Twitter, Instagram, Linkedin, Mail } from 'lucide-react';
 
 export default function Footer() {
+  const [email, setEmail] = useState('');
+  const [isSubscribed, setIsSubscribed] = useState(false);
+
+  const handleSubscribe = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (email) {
+      setIsSubscribed(true);
+      setEmail('');
+      setTimeout(() => setIsSubscribed(false), 3000);
+    }
+  };
+
   return (
     <footer className="bg-brand-blue text-white pt-20 pb-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -54,19 +67,25 @@ export default function Footer() {
           <div>
             <h4 className="font-bold text-lg mb-6">Newsletter</h4>
             <p className="text-gray-400 mb-4">Subscribe to get latest updates and offers.</p>
-            <div className="flex flex-col gap-3">
+            <form onSubmit={handleSubscribe} className="flex flex-col gap-3">
               <div className="relative">
                 <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input 
                   type="email" 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   placeholder="Your email address" 
+                  required
                   className="w-full bg-white/10 text-white rounded-full py-3 pl-12 pr-4 outline-none focus:bg-white/20 transition-colors border border-transparent focus:border-brand-yellow/50"
                 />
               </div>
-              <button className="bg-brand-yellow text-brand-blue font-bold px-6 py-3 rounded-full hover:bg-brand-yellow/90 transition-colors">
-                Subscribe
+              <button 
+                type="submit"
+                className="bg-brand-yellow text-brand-blue font-bold px-6 py-3 rounded-full hover:bg-brand-yellow/90 transition-colors flex items-center justify-center"
+              >
+                {isSubscribed ? 'Subscribed!' : 'Subscribe'}
               </button>
-            </div>
+            </form>
           </div>
 
         </div>

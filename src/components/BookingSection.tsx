@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Calendar, Phone, Mail, User, Clock, ArrowRight } from 'lucide-react';
+import { Calendar, Phone, Mail, User, Clock, ArrowRight, Loader2 } from 'lucide-react';
+import { getAccessToken, googleSignIn, initAuth } from '../lib/auth';
 
 export default function BookingSection() {
   const [formData, setFormData] = useState({
@@ -13,8 +14,14 @@ export default function BookingSection() {
     preferredTime: '',
   });
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    initAuth();
+  }, []);
+
   const packages = [
-    'Trial Class (Free)',
+    'Trial Class 30 minutes',
     '1 Month Package',
     '2 Months Package',
     '3 Months Package',
@@ -31,12 +38,102 @@ export default function BookingSection() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const createOrGetSpreadsheetId = async (accessToken: string) => {
+    let spreadsheetId = localStorage.getItem('adminSpreadsheetId');
+    if (spreadsheetId) return spreadsheetId;
+
+    const res = await fetch('https://sheets.googleapis.com/v4/spreadsheets', {
+      method: 'POST',
+      headers: { 
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        properties: { title: 'Box Obrolan Bookings' },
+        sheets: [{ properties: { title: 'Bookings' } }]
+      })
+    });
+    const data = await res.json();
+    if (data.spreadsheetId) {
+      localStorage.setItem('adminSpreadsheetId', data.spreadsheetId);
+      
+      await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${data.spreadsheetId}/values/Bookings!A1:G1:append?valueInputOption=USER_ENTERED`, {
+        method: 'POST',
+        headers: { 
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          values: [['Date Submitted', 'Name', 'Email', 'Phone', 'Package', 'Course Type', 'Preferred Schedule']]
+        })
+      });
+      
+      return data.spreadsheetId;
+    }
+    throw new Error("Failed to create spreadsheet");
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
     
-    // Format the message for WhatsApp
-    const message = `Hello Box Obrolan! I would like to book a class.
-    
+    try {
+      let accessToken = await getAccessToken();
+      if (!accessToken) {
+        const result = await googleSignIn();
+        if (result) {
+          accessToken = result.accessToken;
+        } else {
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
+      const spreadsheetId = await createOrGetSpreadsheetId(accessToken);
+      await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Bookings!A:G:append?valueInputOption=USER_ENTERED`, {
+        method: 'POST',
+        headers: { 
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          values: [[
+            new Date().toLocaleString(),
+            formData.name,
+            formData.email,
+            formData.phone,
+            formData.package,
+            formData.courseType,
+            `${formData.preferredDate} ${formData.preferredTime}`
+          ]]
+        })
+      });
+
+      const eventStartTime = new Date(`${formData.preferredDate}T${formData.preferredTime}:00`);
+      const eventEndTime = new Date(eventStartTime.getTime() + 60 * 60 * 1000);
+      
+      await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
+        method: 'POST',
+        headers: { 
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          summary: `English Class: ${formData.courseType}`,
+          description: `Student: ${formData.name}\nPackage: ${formData.package}\nPhone: ${formData.phone}`,
+          start: {
+            dateTime: eventStartTime.toISOString(),
+            timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          },
+          end: {
+            dateTime: eventEndTime.toISOString(),
+            timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          },
+        })
+      });
+
+      const message = `Hello Box Obrolan! I would like to book a class.
+      
 *Name*: ${formData.name}
 *Email*: ${formData.email}
 *Phone*: ${formData.phone}
@@ -47,8 +144,15 @@ export default function BookingSection() {
 
 Please let me know the next steps!`;
 
-    const encodedMessage = encodeURIComponent(message);
-    window.open(`https://wa.me/6285716635027?text=${encodedMessage}`, '_blank');
+      const encodedMessage = encodeURIComponent(message);
+      window.open(`https://wa.me/6285716635027?text=${encodedMessage}`, '_blank');
+      
+    } catch (err) {
+      console.error(err);
+      alert('Terdapat kesalahan saat memproses booking. Coba lagi.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -230,9 +334,19 @@ Please let me know the next steps!`;
 
                 <button 
                   type="submit"
-                  className="w-full bg-brand-blue hover:bg-brand-blue/90 text-white font-bold py-4 rounded-2xl transition-all shadow-xl shadow-brand-blue/20 hover:-translate-y-1 flex items-center justify-center gap-2"
+                  disabled={isSubmitting}
+                  className="w-full bg-brand-blue hover:bg-brand-blue/90 text-white font-bold py-4 rounded-2xl transition-all shadow-xl shadow-brand-blue/20 hover:-translate-y-1 flex items-center justify-center gap-2 disabled:opacity-75 disabled:hover:-translate-y-0 disabled:cursor-not-allowed"
                 >
-                  Send Booking Request <ArrowRight size={20} />
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 size={20} className="animate-spin" />
+                      Processing Booking...
+                    </>
+                  ) : (
+                    <>
+                      Send Booking Request <ArrowRight size={20} />
+                    </>
+                  )}
                 </button>
               </form>
             </motion.div>

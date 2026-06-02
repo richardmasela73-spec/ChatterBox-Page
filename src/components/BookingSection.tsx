@@ -40,7 +40,15 @@ export default function BookingSection() {
 
   const createOrGetSpreadsheetId = async (accessToken: string) => {
     let spreadsheetId = localStorage.getItem('adminSpreadsheetId');
-    if (spreadsheetId) return spreadsheetId;
+    if (spreadsheetId) {
+      // Test if we can still access the spreadsheet
+      const testRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}`, {
+        headers: { 'Authorization': `Bearer ${accessToken}` }
+      });
+      if (testRes.ok) return spreadsheetId;
+      // If not, clear it and create a new one
+      localStorage.removeItem('adminSpreadsheetId');
+    }
 
     const res = await fetch('https://sheets.googleapis.com/v4/spreadsheets', {
       method: 'POST',
@@ -53,11 +61,17 @@ export default function BookingSection() {
         sheets: [{ properties: { title: 'Bookings' } }]
       })
     });
+    
+    if (!res.ok) {
+      const errorData = await res.text();
+      throw new Error(`Failed to create spreadsheet: ${errorData}`);
+    }
+    
     const data = await res.json();
     if (data.spreadsheetId) {
       localStorage.setItem('adminSpreadsheetId', data.spreadsheetId);
       
-      await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${data.spreadsheetId}/values/Bookings!A1:G1:append?valueInputOption=USER_ENTERED`, {
+      const headRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${data.spreadsheetId}/values/Bookings!A1:G1:append?valueInputOption=USER_ENTERED`, {
         method: 'POST',
         headers: { 
           'Authorization': `Bearer ${accessToken}`,
@@ -68,9 +82,13 @@ export default function BookingSection() {
         })
       });
       
+      if (!headRes.ok) {
+        console.warn('Failed to append headers', await headRes.text());
+      }
+      
       return data.spreadsheetId;
     }
-    throw new Error("Failed to create spreadsheet");
+    throw new Error("Failed to parse spreadsheet ID");
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -90,7 +108,7 @@ export default function BookingSection() {
       }
 
       const spreadsheetId = await createOrGetSpreadsheetId(accessToken);
-      await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Bookings!A:G:append?valueInputOption=USER_ENTERED`, {
+      const sheetRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Bookings!A:G:append?valueInputOption=USER_ENTERED`, {
         method: 'POST',
         headers: { 
           'Authorization': `Bearer ${accessToken}`,
@@ -109,10 +127,14 @@ export default function BookingSection() {
         })
       });
 
+      if (!sheetRes.ok) {
+        throw new Error(`Sheet append failed: ${await sheetRes.text()}`);
+      }
+
       const eventStartTime = new Date(`${formData.preferredDate}T${formData.preferredTime}:00`);
       const eventEndTime = new Date(eventStartTime.getTime() + 60 * 60 * 1000);
       
-      await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
+      const calRes = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
         method: 'POST',
         headers: { 
           'Authorization': `Bearer ${accessToken}`,
@@ -131,6 +153,10 @@ export default function BookingSection() {
           },
         })
       });
+
+      if (!calRes.ok) {
+        throw new Error(`Calendar event creation failed: ${await calRes.text()}`);
+      }
 
       const message = `Hello Box Obrolan! I would like to book a class.
       

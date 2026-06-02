@@ -35,10 +35,10 @@ export default function Footer() {
               <a href="#" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-brand-orange transition-colors">
                 <Twitter size={18} />
               </a>
-              <a href="#" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-brand-orange transition-colors">
+              <a href="https://www.instagram.com/box_obrolan/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-brand-orange transition-colors">
                 <Instagram size={18} />
               </a>
-              <a href="#" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-brand-orange transition-colors">
+              <a href="https://www.linkedin.com/company/chatterboxforfree/about/?viewAsMember=true" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-brand-orange transition-colors">
                 <Linkedin size={18} />
               </a>
             </div>

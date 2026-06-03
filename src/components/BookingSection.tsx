@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Calendar, Phone, Mail, User, Clock, ArrowRight, Loader2 } from 'lucide-react';
 import { getAccessToken, googleSignIn, initAuth } from '../lib/auth';
+import { createOrGetSpreadsheetId } from '../lib/sheets';
 
 export default function BookingSection() {
   const [formData, setFormData] = useState({
@@ -39,59 +40,6 @@ export default function BookingSection() {
       [name]: value,
     }));
   };
-
-  const createOrGetSpreadsheetId = async (accessToken: string) => {
-    let spreadsheetId = localStorage.getItem('adminSpreadsheetId');
-    if (spreadsheetId) {
-      // Test if we can still access the spreadsheet
-      const testRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}`, {
-        headers: { 'Authorization': `Bearer ${accessToken}` }
-      });
-      if (testRes.ok) return spreadsheetId;
-      // If not, clear it and create a new one
-      localStorage.removeItem('adminSpreadsheetId');
-    }
-
-    const res = await fetch('https://sheets.googleapis.com/v4/spreadsheets', {
-      method: 'POST',
-      headers: { 
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        properties: { title: 'Box Obrolan Bookings' },
-        sheets: [{ properties: { title: 'Bookings' } }]
-      })
-    });
-    
-    if (!res.ok) {
-      const errorData = await res.text();
-      throw new Error(`Failed to create spreadsheet: ${errorData}`);
-    }
-    
-    const data = await res.json();
-    if (data.spreadsheetId) {
-      localStorage.setItem('adminSpreadsheetId', data.spreadsheetId);
-      
-      const headRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${data.spreadsheetId}/values/Bookings!A1:H1:append?valueInputOption=USER_ENTERED`, {
-        method: 'POST',
-        headers: { 
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          values: [['Date Submitted', 'Name', 'Email', 'Phone', 'Package', 'Course Type', 'Preferred Schedule 1', 'Preferred Schedule 2']]
-        })
-      });
-      
-      if (!headRes.ok) {
-        console.warn('Failed to append headers', await headRes.text());
-      }
-      
-      return data.spreadsheetId;
-    }
-    throw new Error("Failed to parse spreadsheet ID");
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

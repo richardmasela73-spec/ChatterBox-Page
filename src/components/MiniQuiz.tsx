@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowRight, CheckCircle2, XCircle, RotateCcw } from 'lucide-react';
+import { ArrowRight, CheckCircle2, XCircle, RotateCcw, Loader2, Save } from 'lucide-react';
+import { getAccessToken, googleSignIn } from '../lib/auth';
+import { createOrGetSpreadsheetId } from '../lib/sheets';
 
 const QUIZ_QUESTIONS = [
   { question: "I ___ from Indonesia.", options: ["am", "is", "are", "be"], correct: 0 },
@@ -31,6 +33,9 @@ export default function MiniQuiz() {
   const [showResult, setShowResult] = useState(false);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [isAnswered, setIsAnswered] = useState(false);
+  
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [savedStatus, setSavedStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
   const handleOptionClick = (index: number) => {
     if (isAnswered) return;
@@ -59,6 +64,56 @@ export default function MiniQuiz() {
     setShowResult(false);
     setSelectedOption(null);
     setIsAnswered(false);
+    setSavedStatus('idle');
+  };
+
+  const handleSaveResult = async () => {
+    setIsSubmitting(true);
+    setSavedStatus('idle');
+    try {
+      let accessToken = await getAccessToken();
+      let userInfo = null;
+      if (!accessToken) {
+        const result = await googleSignIn();
+        if (result) {
+          accessToken = result.accessToken;
+          userInfo = result.user;
+        } else {
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
+      const spreadsheetId = await createOrGetSpreadsheetId(accessToken);
+      
+      const sheetRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Bookings!A:H:append?valueInputOption=USER_ENTERED`, {
+        method: 'POST',
+        headers: { 
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          values: [[
+            new Date().toLocaleString(),
+            userInfo?.displayName || 'Quiz Taker',
+            userInfo?.email || '',
+            '-',
+            `Quiz Score: ${score}/${QUIZ_QUESTIONS.length}`,
+            '-',
+            '-',
+            '-'
+          ]]
+        })
+      });
+
+      if (!sheetRes.ok) throw new Error("Failed to save result");
+      setSavedStatus('success');
+    } catch (err) {
+      console.error(err);
+      setSavedStatus('error');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -144,9 +199,32 @@ export default function MiniQuiz() {
               <p className="text-slate-500">
                 Based on your short test, we recommend checking out our {score >= 17 ? "Advanced" : score >= 12 ? "Intermediate" : "Beginner"} courses.
               </p>
+              
+              {savedStatus === 'success' ? (
+                <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-2xl flex items-center justify-center gap-2 font-bold mt-4">
+                  <CheckCircle2 size={20} /> Result Saved!
+                </div>
+              ) : (
+                <button
+                  onClick={handleSaveResult}
+                  disabled={isSubmitting}
+                  className="inline-flex items-center justify-center gap-2 w-full py-4 bg-brand-orange text-white rounded-2xl font-bold mt-4 hover:bg-brand-orange/90 transition-all shadow-lg hover:-translate-y-1 disabled:opacity-75 disabled:hover:-translate-y-0"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 size={18} className="animate-spin" /> Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Save size={18} /> Save Result to SpreadSheet
+                    </>
+                  )}
+                </button>
+              )}
+
               <button
                 onClick={restartQuiz}
-                className="inline-flex items-center justify-center gap-2 w-full py-4 bg-brand-blue text-white rounded-2xl font-bold mt-4 hover:bg-brand-blue/90 transition-all shadow-lg hover:-translate-y-1"
+                className="inline-flex items-center justify-center gap-2 w-full py-4 bg-brand-blue text-white rounded-2xl font-bold mt-2 hover:bg-brand-blue/90 transition-all shadow-lg hover:-translate-y-1"
               >
                 <RotateCcw size={18} /> Try Again
               </button>

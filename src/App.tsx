@@ -9,6 +9,7 @@ import BookingSection from './components/BookingSection';
 import Tutors from './components/Tutors';
 import Testimonials from './components/Testimonials';
 import About from './components/About';
+import VideoShowcase from './components/VideoShowcase';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import SpreadsheetViewer from './components/SpreadsheetViewer';
@@ -81,6 +82,7 @@ export default function App() {
         <Stats />
         <Features />
         <About />
+        <VideoShowcase />
         
         {/* Simple CTA Section */}
         <section className="py-24 relative overflow-hidden">

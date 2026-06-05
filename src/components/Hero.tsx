@@ -4,9 +4,9 @@ import MiniQuiz from './MiniQuiz';
 
 export default function Hero() {
   return (
-    <section className="pt-32 pb-16 md:pt-40 md:pb-24 overflow-hidden relative">
+    <section className="pt-32 pb-16 md:pt-40 md:pb-24 overflow-hidden relative bg-gradient-space">
       {/* Background decorations */}
-      <div className="absolute top-20 right-0 w-1/3 h-full bg-brand-orange/5 rounded-l-[100px] -z-10 transform -rotate-3"></div>
+      <div className="absolute top-20 right-0 w-1/3 h-full bg-white/5 rounded-l-[100px] -z-10 transform -rotate-3"></div>
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
@@ -18,22 +18,22 @@ export default function Hero() {
             className="lg:col-span-7 flex flex-col space-y-8"
           >
             <div className="space-y-4">
-              <span className="px-4 py-1.5 bg-brand-yellow/20 text-brand-yellow rounded-full text-xs font-bold uppercase tracking-widest inline-block w-fit">
+              <span className="px-4 py-1.5 bg-white/20 text-white rounded-full text-xs font-bold uppercase tracking-widest inline-block w-fit backdrop-blur-md border border-white/10">
                 New 2024 Curriculum
               </span>
               
-              <h1 className="text-6xl md:text-7xl lg:text-[5.5rem] font-black font-heading leading-[0.9] tracking-tighter text-brand-blue">
-                SPEAK <span className="text-brand-orange">BOLDER</span><br />
+              <h1 className="text-6xl md:text-7xl lg:text-[5.5rem] font-black font-heading leading-[0.9] tracking-tighter text-white">
+                SPEAK <span className="text-brand-light">BOLDER</span><br />
                 THAN EVER.
               </h1>
               
-              <p className="text-lg md:text-xl text-slate-500 max-w-md leading-relaxed pt-2">
+              <p className="text-lg md:text-xl text-white/80 max-w-md leading-relaxed pt-2">
                 Unlock confidence with our immersive English courses tailored for kids and adults. Practical speaking, real-world grammar, and expert guidance.
               </p>
             </div>
             
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 pt-4">
-              <a href="#booking" className="inline-block bg-brand-orange text-white px-10 py-5 rounded-2xl font-bold text-lg shadow-xl shadow-brand-orange/30 transform hover:-translate-y-1 transition-all">
+              <a href="#booking" className="inline-block bg-white text-brand-blue px-10 py-5 rounded-2xl font-bold text-lg shadow-xl shadow-brand-blue/30 transform hover:-translate-y-1 transition-all">
                 Start Learning Free
               </a>
               
@@ -44,11 +44,11 @@ export default function Hero() {
                       key={i}
                       src={`https://api.dicebear.com/7.x/notionists/svg?seed=${i}&backgroundColor=e2e8f0,cbd5e1,94a3b8`}
                       alt="Student"
-                      className="w-12 h-12 rounded-full border-4 border-white bg-slate-200"
+                      className="w-12 h-12 rounded-full border-4 border-brand-blue bg-white"
                     />
                   ))}
                 </div>
-                <div className="text-sm font-bold text-brand-blue">
+                <div className="text-sm font-bold text-white">
                   Join 3000+ Learners
                 </div>
               </div>

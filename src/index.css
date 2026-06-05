@@ -5,10 +5,16 @@
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-heading: "Inter", ui-sans-serif, system-ui, sans-serif;
   
-  --color-brand-yellow: #f97316; /* Map to Orange for accents */
-  --color-brand-blue: #1A1A1A;   /* Map to Dark Gray */
-  --color-brand-orange: #4f46e5; /* Map to Indigo for CTAs */
-  --color-brand-light: #FAF9F6;  /* Map to off-white bg */
+  --color-brand-purple: #845EC2;
+  --color-brand-blue: #2C73D2;
+  --color-brand-lightblue: #0081CF;
+  --color-brand-cyan: #0089BA;
+  --color-brand-teal: #008E9B;
+  --color-brand-green: #008F7A;
+  
+  --color-brand-orange: #845EC2; 
+  --color-brand-yellow: #008F7A; 
+  --color-brand-light: #F0F8FF; 
 }
 
 body {
@@ -19,4 +25,15 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
+}
+
+.bg-gradient-space {
+  background: linear-gradient(135deg, var(--color-brand-purple) 0%, var(--color-brand-blue) 40%, var(--color-brand-green) 100%);
+}
+
+.text-gradient-space {
+  background: linear-gradient(to right, var(--color-brand-purple) 0%, var(--color-brand-blue) 50%, var(--color-brand-green) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }

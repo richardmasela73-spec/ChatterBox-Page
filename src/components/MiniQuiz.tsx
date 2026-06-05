@@ -99,7 +99,7 @@ export default function MiniQuiz() {
             userInfo?.email || '',
             '-',
             `Quiz Score: ${score}/${QUIZ_QUESTIONS.length}`,
-            '-',
+            score >= 17 ? "C1 (Advanced)" : score >= 13 ? "B2 (Upper Intermediate)" : score >= 9 ? "B1 (Intermediate)" : score >= 5 ? "A2 (Elementary)" : "A1 (Beginner)",
             '-',
             '-'
           ]]
@@ -194,10 +194,13 @@ export default function MiniQuiz() {
                 </span>
               </div>
               <h4 className="text-2xl font-bold text-brand-blue">
-                {score >= 17 ? "Excellent!" : score >= 12 ? "Great job!" : "Keep practicing!"}
+                {score >= 17 ? "C1 (Advanced)" : score >= 13 ? "B2 (Upper Intermediate)" : score >= 9 ? "B1 (Intermediate)" : score >= 5 ? "A2 (Elementary)" : "A1 (Beginner)"}
               </h4>
-              <p className="text-slate-500">
-                Based on your short test, we recommend checking out our {score >= 17 ? "Advanced" : score >= 12 ? "Intermediate" : "Beginner"} courses.
+              <p className="text-slate-500 font-medium">
+                Based on your results, we predict your English level is {score >= 17 ? "C1 (Advanced)" : score >= 13 ? "B2 (Upper Intermediate)" : score >= 9 ? "B1 (Intermediate)" : score >= 5 ? "A2 (Elementary)" : "A1 (Beginner)"}.
+              </p>
+              <p className="text-brand-yellow font-bold text-lg mt-2">
+                Congratulations on completing the quiz!
               </p>
               
               {savedStatus === 'success' ? (
